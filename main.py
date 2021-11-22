@@ -4,7 +4,8 @@
 import datetime
 import random
 
-MAX_GENERATIONS = 100 # maximum number of birthdays randomly generated
+MAX_GENERATIONS = 100 # Maximum number of birthdays randomly generated
+MAX_EXPERIMENTS = 1000 # Maximum number of samples to randomly generate
 
 def getBDays(num_of_bdays: int) -> list:
     bdays = []
@@ -29,6 +30,22 @@ def checkMatch(birthdays: list) -> datetime or None:
             if bday1 == bday2:
                 return bday1    # return the matching birthday
 
+# Run a single iteration of the experiment
+# returns 0 if a match is found
+# returns 1 if no match is found
+def runExperiment() -> int:
+    # Generates birthdays
+    birthdays = getBDays(num_of_bdays=num_of_bdays)
+
+    # Checks if there are matches in birthdays
+    match = checkMatch(birthdays=birthdays)
+
+    # Displays results
+    if match != None:
+        return 0
+    else:
+        return 1
+
 # list for converting month names
 MONTHS = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
@@ -42,6 +59,15 @@ while True:
         num_of_bdays = int(response)
         break
 
+while True:
+    print('How many experiments to generate (Max {}):'.format(MAX_EXPERIMENTS))
+    response = input('> ')
+    if response.isdigit() and (0 < int(response) <= MAX_EXPERIMENTS):
+        num_of_expts = int(response)
+        break
+
+print()
+print('Here\'s a sample experiment')
 # Generates birthdays
 birthdays = getBDays(num_of_bdays=num_of_bdays)
 
@@ -50,10 +76,10 @@ for i, birthday in enumerate(birthdays):
     if i != 0:
         print(', ', end='')
 
-        month_name = MONTHS[birthday.month - 1]
-        date_text = '{} {}'.format(month_name, birthday.day)
-        print(date_text, end='')
-
+    month_name = MONTHS[birthday.month - 1]
+    date_text = '{} {}'.format(month_name, birthday.day)
+    print(date_text, end='')
+print()
 
 # Checks if there are matches in birthdays
 match = checkMatch(birthdays=birthdays)
@@ -66,3 +92,18 @@ if match != None:
     print('In this simulation, multiple people had the same birthday on {}'.format(date_text))
 else:
     print('In this simulation, there were not any matching birthdays')
+
+print()
+
+# Runs the requested number of experiments
+passes = 0 # Tracks number of matches found
+for x in range(num_of_expts):
+    result = runExperiment()
+    if result == 0:
+        passes += 1
+probablity = round(passes / num_of_expts * 100, 2) # calculates percentage of matched experiments
+
+# Displays the results
+print('Out of {} experiments, each with {} number of people'.format(num_of_expts, num_of_bdays))
+print('A total of {} experiments had at least two people with matching birthdays'.format(passes))
+print('That\'s a probability of {}%'.format(probablity))
